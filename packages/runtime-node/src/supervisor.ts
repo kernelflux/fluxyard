@@ -100,15 +100,14 @@ export class RuntimeNodeSupervisor {
 
       state = await this.transition(id, { type: 'start-requested', at: this.now() })
       const generation = state.generation
+      let handle: RuntimeProcessHandle
       try {
-        const handle = await adapter.start({
+        handle = await adapter.start({
           profile: structuredClone(state.definition),
           generation,
           onHeartbeat: at => this.heartbeat(id, generation, at).then(() => undefined),
           onExit: exit => this.unexpectedExit(id, generation, exit.at, exit.reason).then(() => undefined),
         })
-        this.processes.set(id, handle)
-        return this.transition(id, { type: 'process-started', generation, at: this.now() })
       } catch (error) {
         return this.transition(id, {
           type: 'process-exited',
@@ -117,6 +116,20 @@ export class RuntimeNodeSupervisor {
           expected: false,
           reason: error instanceof Error ? error.message : String(error),
         })
+      }
+
+      this.processes.set(id, handle)
+      try {
+        return await this.transition(id, { type: 'process-started', generation, at: this.now() })
+      } catch (error) {
+        this.processes.delete(id)
+        await handle.stop('Fluxyard could not persist the running generation').catch(() => undefined)
+        const interrupted = reduceRuntimeProfile(this.requireProfile(id), {
+          type: 'host-restarted',
+          at: this.now(),
+        })
+        this.profiles.set(id, interrupted)
+        throw error
       }
     })
   }

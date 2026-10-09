@@ -14,6 +14,7 @@ const profileId = 'profile-demo' as RuntimeProfileId
 
 class MemoryStore implements RuntimeNodeStateStore {
   saves = 0
+  failAtSave: number | undefined
 
   constructor(private state: RuntimeNodeStateSnapshot = { schemaVersion: 1, profiles: [] }) {}
 
@@ -23,6 +24,7 @@ class MemoryStore implements RuntimeNodeStateStore {
 
   async save(snapshot: RuntimeNodeStateSnapshot): Promise<void> {
     this.saves += 1
+    if (this.saves === this.failAtSave) throw new Error('simulated persistence failure')
     this.state = structuredClone(snapshot)
   }
 }
@@ -120,5 +122,13 @@ describe('RuntimeNodeSupervisor', () => {
       config: {},
       createdAt: '2026-10-09T08:00:00.000Z',
     })).rejects.toThrow(/RUNTIME_ADAPTER_NOT_FOUND/)
+  })
+
+  it('stops a newly launched process when healthy state cannot be persisted', async () => {
+    const { store, adapter, supervisor } = await fixture()
+    store.failAtSave = 3
+    await expect(supervisor.start(profileId)).rejects.toThrow(/simulated persistence failure/)
+    expect(adapter.stops).toEqual(['Fluxyard could not persist the running generation'])
+    expect(supervisor.getProfile(profileId).status).toBe('interrupted')
   })
 })
