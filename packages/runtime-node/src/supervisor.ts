@@ -1,4 +1,4 @@
-import { createRuntimeProfileState, reduceRuntimeProfile } from './lifecycle.ts'
+import { createRuntimeProfileState, reduceRuntimeProfile, validateRuntimeProfileState } from './lifecycle.ts'
 import {
   RuntimeNodeInvariantError,
   type RuntimeAdapter,
@@ -49,6 +49,7 @@ export class RuntimeNodeSupervisor {
 
     let recovered = false
     for (const loaded of snapshot.profiles) {
+      validateRuntimeProfileState(loaded)
       if (supervisor.profiles.has(loaded.definition.id)) {
         fail('RUNTIME_PROFILE_DUPLICATE', `duplicate profile ${loaded.definition.id} in state store`)
       }

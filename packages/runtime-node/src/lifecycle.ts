@@ -17,10 +17,39 @@ export function createRuntimeProfileState(definition: RuntimeProfileDefinition):
   }
 }
 
+export function validateRuntimeProfileState(state: RuntimeProfileState): void {
+  validateDefinition(state.definition)
+  if (!['stopped', 'starting', 'healthy', 'unhealthy', 'crashed', 'safe-mode', 'interrupted'].includes(state.status)) {
+    fail('RUNTIME_STATUS_INVALID', `unknown profile status ${String(state.status)}`)
+  }
+  if (!Number.isSafeInteger(state.generation) || state.generation < 0) {
+    fail('RUNTIME_GENERATION_INVALID', 'generation must be a non-negative safe integer')
+  }
+  if (!Number.isSafeInteger(state.consecutiveCrashes) || state.consecutiveCrashes < 0) {
+    fail('RUNTIME_CRASH_COUNT_INVALID', 'consecutiveCrashes must be a non-negative safe integer')
+  }
+  if (state.status === 'safe-mode' && state.consecutiveCrashes < state.definition.crashThreshold) {
+    fail('RUNTIME_SAFE_MODE_INVALID', 'Safe Mode requires the configured crash threshold')
+  }
+  if (state.status !== 'safe-mode' && state.safeModeReason !== undefined) {
+    fail('RUNTIME_SAFE_MODE_INVALID', 'safeModeReason is only valid in Safe Mode')
+  }
+  validateTimestamp(state.updatedAt, 'profile updatedAt')
+  if (state.lastHeartbeatAt !== undefined) validateTimestamp(state.lastHeartbeatAt, 'profile lastHeartbeatAt')
+  if (state.lastExit) {
+    if (!Number.isSafeInteger(state.lastExit.generation) || state.lastExit.generation < 0) {
+      fail('RUNTIME_GENERATION_INVALID', 'exit generation must be a non-negative safe integer')
+    }
+    validateTimestamp(state.lastExit.at, 'profile lastExit.at')
+    requireText(state.lastExit.reason, 'profile lastExit.reason')
+  }
+}
+
 export function reduceRuntimeProfile(
   state: RuntimeProfileState,
   event: RuntimeLifecycleEvent,
 ): RuntimeProfileState {
+  validateRuntimeProfileState(state)
   validateTimestamp(event.at, 'event timestamp')
   if (Date.parse(event.at) < Date.parse(state.updatedAt)) {
     fail('RUNTIME_TIME_REGRESSION', `${event.at} is before ${state.updatedAt}`)
