@@ -1,0 +1,22 @@
+{
+  "name": "fluxyard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Open control plane and native workbench for AI agents",
+  "license": "Apache-2.0",
+  "type": "module",
+  "packageManager": "pnpm@11.7.0",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "fluxyard": "node --experimental-strip-types apps/cli/src/main.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10"
+  }
+}
