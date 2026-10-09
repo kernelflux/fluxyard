@@ -23,6 +23,9 @@ importers:
       '@fluxyard/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@fluxyard/runtime-node':
+        specifier: workspace:*
+        version: link:../../packages/runtime-node
       '@fluxyard/store-json':
         specifier: workspace:*
         version: link:../../packages/store-json

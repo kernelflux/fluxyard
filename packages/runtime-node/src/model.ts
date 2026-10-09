@@ -49,8 +49,8 @@ export interface RuntimeProcessHandle {
 export interface RuntimeAdapterStartRequest {
   readonly profile: RuntimeProfileDefinition
   readonly generation: RuntimeGeneration
-  readonly onHeartbeat: (at: string) => void
-  readonly onExit: (exit: { readonly at: string; readonly reason: string }) => void
+  readonly onHeartbeat: (at: string) => void | Promise<void>
+  readonly onExit: (exit: { readonly at: string; readonly reason: string }) => void | Promise<void>
 }
 
 export interface RuntimeAdapter {

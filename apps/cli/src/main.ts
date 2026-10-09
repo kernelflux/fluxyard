@@ -11,6 +11,7 @@ import {
   type WorkspaceId,
 } from '@fluxyard/core'
 import { JsonControlPlaneStore } from '@fluxyard/store-json'
+import { runRuntimeDemo } from './runtime-demo.ts'
 
 export interface CliOptions {
   readonly cwd?: string
@@ -23,12 +24,24 @@ export async function runCli(rawArgs: readonly string[], options: CliOptions = {
   const write = options.write ?? console.log
   const env = options.env ?? process.env
   const cwd = options.cwd ?? process.cwd()
-  const { args, dataPath } = extractDataPath(rawArgs, env.FLUXYARD_DATA ?? join(cwd, '.fluxyard', 'control-plane.json'))
+  const fallback = env.FLUXYARD_DATA ?? join(cwd, '.fluxyard', 'control-plane.json')
+  const extracted = extractDataPath(rawArgs, fallback)
+  const { args } = extracted
+  const dataPath = args[0] === 'runtime' && !extracted.explicit
+    ? join(cwd, '.fluxyard', 'runtime-node.json')
+    : extracted.dataPath
+  const [group, action, ...values] = args
+
+  if (group === 'runtime' && action === 'demo') {
+    const result = await runRuntimeDemo(dataPath)
+    write(JSON.stringify({ ok: true, dataPath, result }, null, 2))
+    return 0
+  }
+
   const store = new JsonControlPlaneStore(dataPath)
   const plane = await store.load()
   const now = options.now ?? (() => new Date().toISOString())
 
-  const [group, action, ...values] = args
   if (!group || group === 'help' || group === '--help' || group === '-h') {
     write(JSON.stringify({ ok: true, commands: HELP_COMMANDS }, null, 2))
     return 0
@@ -107,6 +120,7 @@ export async function runCli(rawArgs: readonly string[], options: CliOptions = {
 
 const HELP_COMMANDS = [
   'demo',
+  'runtime demo',
   'workspace add <id> <name>',
   'node add <workspace-id> <node-id> <platform> <adapter-kind> <adapter-version> <display-name>',
   'agent add <workspace-id> <node-id> <agent-id> <owner-id> <runtime-kind> <version> <name>',
@@ -164,14 +178,17 @@ function runDemo(plane: import('@fluxyard/core').AgentControlPlane): object {
   }
 }
 
-function extractDataPath(args: readonly string[], fallback: string): { args: string[]; dataPath: string } {
+function extractDataPath(
+  args: readonly string[],
+  fallback: string,
+): { args: string[]; dataPath: string; explicit: boolean } {
   const result = [...args]
   const index = result.indexOf('--data')
-  if (index < 0) return { args: result, dataPath: fallback }
+  if (index < 0) return { args: result, dataPath: fallback, explicit: false }
   const path = result[index + 1]
   if (!path) throw new CliUsageError('--data requires a path')
   result.splice(index, 2)
-  return { args: result, dataPath: path }
+  return { args: result, dataPath: path, explicit: true }
 }
 
 function parseUsageEvent(source: string): UsageEvent {

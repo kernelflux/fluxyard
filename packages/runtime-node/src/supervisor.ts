@@ -104,8 +104,8 @@ export class RuntimeNodeSupervisor {
         const handle = await adapter.start({
           profile: structuredClone(state.definition),
           generation,
-          onHeartbeat: at => { void this.heartbeat(id, generation, at) },
-          onExit: exit => { void this.unexpectedExit(id, generation, exit.at, exit.reason) },
+          onHeartbeat: at => this.heartbeat(id, generation, at).then(() => undefined),
+          onExit: exit => this.unexpectedExit(id, generation, exit.at, exit.reason).then(() => undefined),
         })
         this.processes.set(id, handle)
         return this.transition(id, { type: 'process-started', generation, at: this.now() })
