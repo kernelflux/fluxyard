@@ -20,6 +20,12 @@ importers:
 
   packages/core: {}
 
+  packages/store-json:
+    dependencies:
+      '@fluxyard/core':
+        specifier: workspace:*
+        version: link:../core
+
 packages:
 
   '@jridgewell/sourcemap-codec@1.6.0':
