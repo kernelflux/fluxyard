@@ -18,6 +18,15 @@ importers:
         specifier: ^4.1.10
         version: 4.1.11(@types/node@22.20.5)(vite@8.3.3(@types/node@22.20.5))
 
+  apps/cli:
+    dependencies:
+      '@fluxyard/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@fluxyard/store-json':
+        specifier: workspace:*
+        version: link:../../packages/store-json
+
   packages/core: {}
 
   packages/store-json:

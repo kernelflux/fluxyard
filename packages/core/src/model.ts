@@ -98,8 +98,11 @@ export interface ControlPlaneSnapshot {
 }
 
 export class ControlPlaneInvariantError extends Error {
-  constructor(readonly code: string, message: string) {
+  readonly code: string
+
+  constructor(code: string, message: string) {
     super(`${code}: ${message}`)
+    this.code = code
     this.name = 'ControlPlaneInvariantError'
   }
 }

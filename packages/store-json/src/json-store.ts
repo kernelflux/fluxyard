@@ -3,15 +3,21 @@ import { dirname } from 'node:path'
 import { AgentControlPlane, type ControlPlaneSnapshot } from '@fluxyard/core'
 
 export class JsonStoreError extends Error {
-  constructor(readonly code: string, message: string, options?: ErrorOptions) {
+  readonly code: string
+
+  constructor(code: string, message: string, options?: ErrorOptions) {
     super(`${code}: ${message}`, options)
+    this.code = code
     this.name = 'JsonStoreError'
   }
 }
 
 export class JsonControlPlaneStore {
-  constructor(readonly path: string) {
+  readonly path: string
+
+  constructor(path: string) {
     if (path.trim().length === 0) throw new JsonStoreError('STORE_PATH_INVALID', 'path must be non-empty')
+    this.path = path
   }
 
   async load(): Promise<AgentControlPlane> {
