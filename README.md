@@ -13,7 +13,8 @@ Fluxyard is runtime-neutral. DeepSeek Harness will be its first full adapter, wh
 
 ## Status
 
-Fluxyard is pre-alpha. v0.1 establishes the local control-plane facts and CLI before adding a Runtime Node, native macOS Workbench, admin web interface, or multi-user server.
+Fluxyard is pre-alpha. v0.1 established local control-plane facts and the CLI;
+v0.2 adds the durable Runtime Node lifecycle before integrating a real runtime.
 
 ## Architecture
 
@@ -31,7 +32,8 @@ DeepSeek Harness     other runtimes
 
 The Control Plane owns inventory, usage, policy, audit, evaluation and lifecycle. A Runtime Node owns local profiles, processes, health and recovery. Runtime adapters translate facts without forcing Fluxyard's enterprise model into the runtime.
 
-See [Architecture](docs/architecture.md) and the [v0.1 implementation plan](docs/plans/2026-10-09-v0.1-foundation.md).
+See [Architecture](docs/architecture.md), the [v0.1 foundation plan](docs/plans/2026-10-09-v0.1-foundation.md),
+and the [v0.2 Runtime Node design](docs/plans/2026-10-09-runtime-node-design.md).
 
 ## Quick start
 
@@ -42,17 +44,22 @@ pnpm install
 pnpm typecheck
 pnpm test
 pnpm fluxyard demo
+pnpm fluxyard runtime demo
 ```
 
-The demo stores local state in `.fluxyard/control-plane.json` and prints a structured usage summary. Running it again is idempotent.
+The control-plane demo stores local state in `.fluxyard/control-plane.json` and
+prints a structured usage summary. The Runtime Node demo uses
+`.fluxyard/runtime-node.json`, crashes three fake process generations, opens the
+Safe Mode circuit and reloads the persisted state.
 
 ## Roadmap
 
 - **v0.1:** Agent inventory, immutable usage ledger, durable local store, CLI demo.
-- **v0.2:** Runtime Node identity, heartbeat, profiles, safe mode, DeepSeek Harness adapter.
-- **v0.3:** Native macOS Workbench and local run/usage views.
-- **v0.4:** Enterprise server, OIDC, RBAC, policy, budgets, audit and admin UI.
-- **v0.5:** Evaluation and release gates; Windows and mobile companion clients.
+- **v0.2:** Runtime profiles, heartbeat, generations, crash circuit breaking and Safe Mode.
+- **v0.3:** Runtime Node enrollment and the first DeepSeek Harness adapter.
+- **v0.4:** Native macOS Workbench and local run/usage views.
+- **v0.5:** Enterprise server, OIDC, RBAC, policy, budgets, audit and admin UI.
+- **v0.6:** Evaluation and release gates; Windows and mobile companion clients.
 
 ## Principles
 
@@ -68,15 +75,17 @@ The demo stores local state in `.fluxyard/control-plane.json` and prints a struc
 apps/cli/             Local operator workflow and demo
 packages/core/        Runtime-neutral control-plane domain
 packages/store-json/  Atomic local persistence for evaluation
+packages/runtime-node/ Runtime profiles, supervision, recovery and adapter contract
 docs/                 Architecture and implementation plans
 ```
 
-## v0.1 limitations
+## v0.2 limitations
 
-The JSON store is deliberately single-process and local-only. v0.1 has no
-authentication, network listener, secret management, runtime process manager,
-or production database. Those capabilities will be added around the tested
-domain rather than embedded into it.
+The JSON stores are deliberately single-process and local-only. v0.2 has no
+authentication, network listener, secret management, real runtime adapter or
+production database. Safe Mode recovery is explicit and automatic backoff is
+not implemented yet. Those capabilities will be added around the tested domain
+rather than embedded into it.
 
 ## License
 
