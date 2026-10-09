@@ -37,6 +37,32 @@ export interface RuntimeProfileState {
   readonly updatedAt: string
 }
 
+export interface RuntimeNodeStateSnapshot {
+  readonly schemaVersion: 1
+  readonly profiles: readonly RuntimeProfileState[]
+}
+
+export interface RuntimeProcessHandle {
+  stop(reason: string): Promise<void>
+}
+
+export interface RuntimeAdapterStartRequest {
+  readonly profile: RuntimeProfileDefinition
+  readonly generation: RuntimeGeneration
+  readonly onHeartbeat: (at: string) => void
+  readonly onExit: (exit: { readonly at: string; readonly reason: string }) => void
+}
+
+export interface RuntimeAdapter {
+  readonly kind: string
+  start(request: RuntimeAdapterStartRequest): Promise<RuntimeProcessHandle>
+}
+
+export interface RuntimeNodeStateStore {
+  load(): Promise<RuntimeNodeStateSnapshot>
+  save(snapshot: RuntimeNodeStateSnapshot): Promise<void>
+}
+
 export type RuntimeLifecycleEvent =
   | { readonly type: 'start-requested'; readonly at: string }
   | { readonly type: 'process-started'; readonly generation: RuntimeGeneration; readonly at: string }
