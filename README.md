@@ -62,6 +62,22 @@ The demo stores local state in `.fluxyard/control-plane.json` and prints a struc
 - Deterministic code for permissions and side effects; agents for judgment.
 - One modular monolith before any microservices.
 
+## Repository layout
+
+```text
+apps/cli/             Local operator workflow and demo
+packages/core/        Runtime-neutral control-plane domain
+packages/store-json/  Atomic local persistence for evaluation
+docs/                 Architecture and implementation plans
+```
+
+## v0.1 limitations
+
+The JSON store is deliberately single-process and local-only. v0.1 has no
+authentication, network listener, secret management, runtime process manager,
+or production database. Those capabilities will be added around the tested
+domain rather than embedded into it.
+
 ## License
 
 Apache License 2.0. See [LICENSE](LICENSE).
