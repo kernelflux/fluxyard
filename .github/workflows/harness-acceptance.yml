@@ -1,0 +1,61 @@
+name: Official Harness acceptance
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.10.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install pinned external runtime
+        run: npm install --prefix "$RUNNER_TEMP/harness-runtime" --save-exact @deepseek-ai/dsh@0.2.0-rc.2
+      - name: Prepare smoke configuration
+        run: |
+          node --input-type=module - <<'JS'
+          import { writeFileSync } from 'node:fs';
+          import { join } from 'node:path';
+          const root = process.env.RUNNER_TEMP;
+          writeFileSync(join(root, 'harness-launch.json'), JSON.stringify({
+            nodeExecutable: process.execPath,
+            cliEntry: join(root, 'harness-runtime/node_modules/@deepseek-ai/dsh/lib/bin.js'),
+            workingDirectory: root,
+            homeDirectory: join(root, 'harness-home'),
+            provider: 'deepseek-official', model: 'deepseek-official',
+          }));
+          JS
+      - name: SDK and lifecycle acceptance (no model calls)
+        run: pnpm smoke:harness "$RUNNER_TEMP/harness-launch.json"
+      - name: Install Electron carrier (macOS)
+        if: runner.os == 'macOS'
+        run: pnpm --filter @fluxyard/desktop setup
+      - name: Electron SDK and Web acceptance (no model calls)
+        if: runner.os == 'macOS'
+        run: FLUXYARD_HARNESS_INSTALLATION="$RUNNER_TEMP/harness-runtime" pnpm smoke:desktop
+      - name: Package macOS ARM64 development distribution
+        if: runner.os == 'macOS' && runner.arch == 'ARM64'
+        run: pnpm package:desktop
+      - name: Verify packaged carrier without external runtime
+        if: runner.os == 'macOS' && runner.arch == 'ARM64'
+        run: |
+          env -u FLUXYARD_HARNESS_INSTALLATION -u ELECTRON_RUN_AS_NODE PATH=/usr/bin:/bin apps/desktop/release/Fluxyard-darwin-arm64/Fluxyard.app/Contents/MacOS/Fluxyard --smoke
+          hdiutil verify apps/desktop/release/Fluxyard-0.4.0-darwin-arm64.dmg
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'macOS' && runner.arch == 'ARM64'
+        with:
+          name: Fluxyard-macOS-ARM64-development
+          path: |
+            apps/desktop/release/*.dmg
+            apps/desktop/release/*.sha256
+            apps/desktop/release/size-report.json

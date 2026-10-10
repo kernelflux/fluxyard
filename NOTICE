@@ -1,0 +1,11 @@
+Fluxyard
+Copyright 2026 kernelflux
+
+Fluxyard original source is licensed under the Apache License, Version 2.0.
+
+This project integrates third-party software including DeepSeek Harness,
+Cordis, Electron and PptxGenJS. Their copyrights and licenses remain with
+their respective owners. This notice does not relicense third-party code.
+
+Packaged distributions retain dependency license files and manifests and
+Electron license notices. Consult those files for component-specific terms.

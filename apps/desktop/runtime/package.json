@@ -1,0 +1,9 @@
+{
+  "name": "fluxyard-bundled-harness",
+  "version": "0.3.0",
+  "private": true,
+  "dependencies": {
+    "@deepseek-ai/dsh": "0.2.0-rc.2",
+    "pptxgenjs": "4.0.1"
+  }
+}

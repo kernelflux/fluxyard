@@ -1,0 +1,8 @@
+{
+  "nodeExecutable": "/absolute/path/to/compatible/node",
+  "cliEntry": "/absolute/path/to/node_modules/@deepseek-ai/dsh/lib/bin.js",
+  "workingDirectory": "/absolute/path/to/workspace",
+  "homeDirectory": "/absolute/path/to/fluxyard-data/profiles/harness-local",
+  "provider": "deepseek-official",
+  "model": "deepseek-official"
+}

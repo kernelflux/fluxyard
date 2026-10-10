@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowImportingTsExtensions": true,
+    "strict": true,
+    "erasableSyntaxOnly": true,
+    "noEmit": true,
+    "types": [
+      "node",
+      "vitest/globals"
+    ],
+    "skipLibCheck": true
+  },
+  "include": [
+    "apps/**/*.ts",
+    "packages/**/*.ts",
+    "vitest.config.ts",
+    "scripts/**/*.ts"
+  ]
+}

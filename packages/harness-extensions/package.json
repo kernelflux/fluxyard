@@ -1,0 +1,14 @@
+{
+  "name": "@fluxyard/harness-extensions",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "pptxgenjs": "4.0.1"
+  },
+  "devDependencies": {
+    "fflate": "0.8.3"
+  },
+  "exports": "./src/index.ts"
+}

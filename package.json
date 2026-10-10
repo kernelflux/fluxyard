@@ -1,0 +1,33 @@
+{
+  "name": "fluxyard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first AI desktop workspace built on DeepSeek Harness",
+  "license": "Apache-2.0",
+  "type": "module",
+  "packageManager": "pnpm@11.7.0",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "fluxyard": "node --experimental-strip-types apps/cli/src/main.ts",
+    "smoke:harness": "node --experimental-strip-types scripts/harness-smoke.ts",
+    "dev:desktop": "pnpm --filter @fluxyard/desktop dev",
+    "build:desktop": "pnpm --filter @fluxyard/desktop build",
+    "smoke:desktop": "pnpm --filter @fluxyard/desktop smoke",
+    "package:desktop": "pnpm --filter @fluxyard/desktop package"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10"
+  },
+  "author": "kernelflux",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kernelflux/fluxyard.git"
+  },
+  "homepage": "https://github.com/kernelflux/fluxyard"
+}

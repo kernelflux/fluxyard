@@ -1,0 +1,28 @@
+node_modules/
+coverage/
+dist/
+*.log
+.DS_Store
+.fluxyard/
+fluxyard-data.json
+fluxyard-data.json.tmp
+
+apps/desktop/.packaging/
+apps/desktop/release/
+
+# Local AI development records and instructions (not public project docs)
+/docs/
+AGENTS.md
+SKILLS.md
+SKILL.md
+.agents/
+.codex/
+.ai/
+/work/
+/outputs/
+*.local.md
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
